@@ -21,20 +21,16 @@ class CurrencyController extends Controller
     public function add(Request $request)
     { 
         $this->authorize('viewAny', Currency::class);
-        $todayCurrencies = Currency::whereDate('created_at',Carbon::today())->where('abbreviation',$request->abbreviation)->get(); 
+        $todayCurrencies = Currency::getTodayCurrencies($request->abbreviation); 
         if($todayCurrencies->count() == 0){
-                Currency::create([
-                    'abbreviation' => $request->abbreviation,
-                    'amount' => $request->amount,
-                    'date' => Carbon::now()
-                ]);        
-            }
+            Currency::create($request->abbreviation, $request->amount);        
+        }
     } 
     public function search(Request $request)
     {
         $this->authorize('viewAny', Currency::class);
-        $dayCurrencies = Currency::whereDate('date',$request->date)->get();
-        // return $dayCurrencies->toArray();
+        $dayCurrencies = Currency::search($request->date);
+        // return $dayCurrencies->toArray(); do podstawowego widoku
         return Inertia::render('SearchPage',[
             'dayCurrencies' => $dayCurrencies
         ]);
@@ -42,12 +38,10 @@ class CurrencyController extends Controller
     public function searchWithCurrency(Request $request)
     {
         $this->authorize('viewAny', Currency::class);
-        $currencies = Currency::whereDate('date',$request->date)->where('abbreviation',$request->abbreviation)->get();
-        // return $currencies->toArray();
+        $currencies = Currency::searchWithCurrency($request->date,$request->abbreviation);
+        // return $currencies->toArray(); do podstawowego widoku
         return Inertia::render('SearchPage',[
             'currencies' => $currencies
         ]);
     }     
 }
-    
-
